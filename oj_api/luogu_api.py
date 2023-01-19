@@ -65,6 +65,9 @@ class LUOGU(Contest):
               )
         return res
 
+    async def get_rating(self, name):
+        return -1
+
     async def update_local_contest(self):
         url = "https://contests.sdutacm.cn/contests.json"
         json_data = await get_json(url)
