@@ -10,7 +10,7 @@ import asyncio
 from bisect import bisect_right
 from mirai.models.api import MessageFromIdResponse
 from log import Log
-from oj_api import atc_api, cf_api, nc_api, lc_api, ptyzoj_api, ptezoj_api，luogu_api
+from oj_api import atc_api, cf_api, nc_api, lc_api, ptyzoj_api, ptezoj_api,luogu_api
 from mirai.models import NewFriendRequestEvent, Quote, Group, Friend
 from mirai import Startup, Shutdown, MessageEvent
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
