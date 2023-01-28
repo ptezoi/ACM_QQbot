@@ -16,10 +16,10 @@ class PTEZOJ(Contest):
                 if contest['source'] == 'PTEZOJ':
                     contest['contestName'] = contest['name']
                     start_time = int(time.mktime(time.strptime(
-                        contest['start_time'], "%Y-%m-%dT%H:%M:%S+00:00"))) + 8 * 3600
+                        contest['start_time'], "%Y-%m-%dT%H:%M:%S+00:00")))
                     contest['startTime'] = start_time
                     end_time = int(time.mktime(time.strptime(
-                        contest['end_time'], "%Y-%m-%dT%H:%M:%S+00:00"))) + 8 * 3600
+                        contest['end_time'], "%Y-%m-%dT%H:%M:%S+00:00")))
                     contest['endTime'] = end_time
                     durationSeconds = contest['endTime'] - contest['startTime']
                     if durationSeconds <= 18000 and contest['startTime'] >= int(time.time()):
