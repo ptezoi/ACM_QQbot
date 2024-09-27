@@ -1,9 +1,19 @@
 import re
 import json
 import time
+import urllib3
 
 from web_operation.operation import *
 from oj_api.contest import Contest
+
+
+def get_con(url):
+    headers = {  # 定义请求头字典
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+    }
+    http_ = urllib3.PoolManager()
+    res = http_.request('GET', url, headers=headers)
+    return res.data.decode()
 
 
 class ATC(Contest):
@@ -11,7 +21,7 @@ class ATC(Contest):
         with open('./oj_json/contests.json', 'r', encoding='utf-8') as f:
             contest_data = json.load(f)
         contest_list = []
-        if contest_data != []:
+        if contest_data:
             for contest in contest_data:
                 if contest['source'] == 'AtCoder':
                     contest['contestName'] = contest['name']
@@ -56,13 +66,13 @@ class ATC(Contest):
               "开始时间：{}\n" \
               "持续时间：{}\n" \
               "比赛地址：{}\n".format(
-                  next_contest['contestName'],
-                  time.strftime("%Y-%m-%d %H:%M:%S",
-                                time.localtime(int(next_contest['startTime']))),
-                  "{}小时{:02d}分钟".format(
-                      durationSeconds // 3600, durationSeconds % 3600 // 60),
-                  next_contest['link']
-              )
+            next_contest['contestName'],
+            time.strftime("%Y-%m-%d %H:%M:%S",
+                          time.localtime(int(next_contest['startTime']))),
+            "{}小时{:02d}分钟".format(
+                durationSeconds // 3600, durationSeconds % 3600 // 60),
+            next_contest['link']
+        )
         return res
 
     async def get_rating(self, name):
@@ -76,12 +86,59 @@ class ATC(Contest):
             return -1
 
     async def update_local_contest(self):
-        url = "https://contests.sdutacm.cn/contests.json"
-        json_data = await get_json(url)
-        if json_data == -1:
-            return False
-        with open('./oj_json/contests.json', 'w') as f:
-            json.dump(json_data, f, indent=4)
+        url1 = "https://atcoder.jp/contests/"
+        q = get_con(url1)
+        par = r"<a href=(.*?)</a>"
+        pos1 = q.find("Upcoming Contests")
+        pos2 = q.find("Recent Contests")
+        txt = q[pos1: pos2]
+        txt2 = re.findall(par, txt)
+        atc_json = [
+            {
+                "source": "AtCoder",
+                "name": "",
+                "link": "",
+                "contest_id": "",
+                "start_time": "",
+                "end_time": "",
+                "hash": ""
+            },
+            {
+                "source": "AtCoder",
+                "name": "",
+                "link": "",
+                "contest_id": "",
+                "start_time": "",
+                "end_time": "",
+                "hash": ""
+            },
+            {
+                "source": "AtCoder",
+                "name": "",
+                "link": "",
+                "contest_id": "",
+                "start_time": "",
+                "end_time": "",
+                "hash": ""
+            }
+        ]
+        for i in range(5):
+            if i % 2 == 0:
+                con_url = "https://atcoder.jp/contests/" + re.findall(r"/contests/(.*)", txt2[i + 1])[0][0: 6]
+                name = (re.findall(r"/contests/(.*)", txt2[i + 1])[0])[
+                       8: len((re.findall(r"/contests/(.*)", txt2[i + 1])[0]))]
+                t_id = (re.findall(r"/contests/(.*)", txt2[i + 1])[0])[0: 6]
+                st = re.findall(r"var startTime = moment(.*;)", get_con(con_url))
+                ed = re.findall(r"var endTime = moment(.*;)", get_con(con_url))
+                hash = f"fby_ak_ioi%%%tql{i}"
+                atc_json[i // 2]["name"] = name
+                atc_json[i // 2]["link"] = con_url
+                atc_json[i // 2]["contest_id"] = t_id
+                atc_json[i // 2]["start_time"] = st[0][2: len(st[0]) - 3]
+                atc_json[i // 2]["end_time"] = ed[0][2: len(ed[0]) - 3]
+                atc_json[i // 2]["hash"] = hash
+                with open('./oj_json/contests.json', "w") as f:
+                    json.dump(atc_json, f, indent=4)
         return True
 
 
